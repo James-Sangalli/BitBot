@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 getPrice();
-askUser("please enter your blockchan.info username","username");
+askUser("please enter your bter.com username","username");
 
 function getPrice(){
   setTimeout(() => {
