@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var request = require("superagent");
 var readline = require('readline');
+var dotenv = require("dotenv");
 var rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -15,25 +16,25 @@ sellPrice,
 buyPrice,
 sold = false,
 bought = false,
-username,
-password
+username = process.env.bterKey,
+password = process.env.bterSecret
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-getPrice();
-askUser("please enter your bter.com username","username");
+getPrice(0);
+askUser("please enter your bter.com API key","username");
 
-function getPrice(){
+function getPrice(time){
   setTimeout(() => {
     request.get("https://blockchain.info/ticker",(err,data) => {
-      price = data.body.USD.buy;
-      // console.log("\nBitcoin price: $USD", data.body.USD.buy);
+      price = data.body.CNY.buy;
+      console.log("\nBitcoin price: CNY", data.body.CNY.buy);
       if(price == buyPrice && !bought) buy()
       if(price == sellPrice && !sold) sell()
-      getPrice();
+      getPrice(900000); //15 min delay which is how delayed blockchain.info is
     })
-  },5000)
+  },time)
 }
 
 function askUser(question,variable){
@@ -42,7 +43,8 @@ function askUser(question,variable){
     console.log("You Selected: ", answer);
     if(variable == "username"){
       username = answer;
-      askUser("please enter your password","password");
+      askUser("please enter your bter.com API secret","password");
+      getBalance(username,password);
     }
     else if(variable == "password"){
       password = answer;
@@ -50,11 +52,11 @@ function askUser(question,variable){
     }
     else if(variable == "amount"){
       amount = answer;
-      askUser("what would you like to buy at? (in $USD)", "buyPrice");
+      askUser("what would you like to buy at? (in CNY)", "buyPrice");
     }
     else if(variable == "buyPrice"){
       buyPrice = answer;
-      askUser("what would you like to sell at? (in $USD)", "sellPrice");
+      askUser("what would you like to sell at? (in CNY)", "sellPrice");
     }
     else{
       sellPrice = answer;
@@ -62,6 +64,20 @@ function askUser(question,variable){
     }
     // rl.close();
   });
+}
+
+function getBalance(){
+  app.post("https://bter.com/api/1/private/getfunds", (err,data) => {
+    console.log("here are your balances: ", data);
+    if(data.available_funds.BTC > amount){
+      amount = data.available_funds.BTC;
+      console.log("you can only trade " + amount + " BTC");
+    }
+    if(data.available_funds.CNY > buyPrice){
+      buyPrice = data.available_funds.CNY;
+      console.log("you can only trade with " + buyPrice + " CNY")
+    }
+  })
 }
 
 function buy(){
