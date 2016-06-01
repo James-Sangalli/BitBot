@@ -59,7 +59,6 @@ function askUser(question,variable){
     else{
       sellPrice = answer;
       askUser("hit ctrl c to abort", null);
-      buyPrice = price;
     }
     // rl.close();
   });
