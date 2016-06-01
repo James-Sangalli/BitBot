@@ -22,13 +22,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 getPrice();
-askUser("please enter your blockchan.info username","username");
+askUser("please enter your bter.com username","username");
 
 function getPrice(){
   setTimeout(() => {
     request.get("https://blockchain.info/ticker",(err,data) => {
-      price = data.body.NZD.buy;
-      // console.log("\nBitcoin price: $NZD", data.body.NZD.buy);
+      price = data.body.USD.buy;
+      // console.log("\nBitcoin price: $USD", data.body.USD.buy);
       if(price == buyPrice && !bought) buy()
       if(price == sellPrice && !sold) sell()
       getPrice();
@@ -50,11 +50,11 @@ function askUser(question,variable){
     }
     else if(variable == "amount"){
       amount = answer;
-      askUser("what would you like to buy at? (in $NZD)", "buyPrice");
+      askUser("what would you like to buy at? (in $USD)", "buyPrice");
     }
     else if(variable == "buyPrice"){
       buyPrice = answer;
-      askUser("what would you like to sell at? (in $NZD)", "sellPrice");
+      askUser("what would you like to sell at? (in $USD)", "sellPrice");
     }
     else{
       sellPrice = answer;
